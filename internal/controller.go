@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,9 +12,7 @@ import (
 func SayHello(ctx *gin.Context) {
 	ip := ctx.GetHeader("X-FORWARDED-FOR")
 	log.Printf("ip address is: %s", ip)
-	// if ip == "" {
-	// 	ip, _, _ = net.SplitHostPort(ctx.Request.RemoteAddr)
-	// }
+	ip = strings.Split(ip, ",")[0]
 	log.Printf("remote address: %s", ctx.Request.RemoteAddr)
 
 	visitorName := ctx.Query("visitor_name")
