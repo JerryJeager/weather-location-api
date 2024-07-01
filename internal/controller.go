@@ -10,10 +10,11 @@ import (
 
 func SayHello(ctx *gin.Context) {
 	ip := ctx.GetHeader("X-FORWARDED-FOR")
-	if ip != "" {
-		log.Print(ip)
-	}
-	log.Print(ctx.Request.RemoteAddr)
+	log.Printf("ip address is: %s", ip)
+	// if ip == "" {
+	// 	ip, _, _ = net.SplitHostPort(ctx.Request.RemoteAddr)
+	// }
+	log.Printf("remote address: %s", ctx.Request.RemoteAddr)
 
 	visitorName := ctx.Query("visitor_name")
 
