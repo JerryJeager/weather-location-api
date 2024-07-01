@@ -35,18 +35,18 @@ func GetGeolocation(ip string, apiKey string) (*IPinfoResponse, error) {
 	return &location, nil
 }
 
-func GetWeatherData(cityQuery string, apiKey string) (*WeatherResponse, error) {
+func GetWeatherData(cityQuery string, apiKey string) (*map[string]interface{}, error) {
 	if cityQuery == "" {
 		cityQuery = "auto"
 	}
-	url := fmt.Sprintf("https://api.weatherapi.com/v1/current.json/key=%s&q=%s", apiKey, cityQuery)
+	url := fmt.Sprintf("https://api.weatherapi.com/v1/current.json?key=%s&q=%s", apiKey, cityQuery)
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	var weatherData WeatherResponse
+	var weatherData map[string]interface{}
 	if err := json.NewDecoder(resp.Body).Decode(&weatherData); err != nil {
 		return nil, err
 	}
