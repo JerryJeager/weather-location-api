@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"log"
 	"net/http"
 	"os"
 
@@ -8,25 +9,38 @@ import (
 )
 
 func SayHello(ctx *gin.Context) {
+	ip := ctx.GetHeader("X-FORWARDED-FOR")
+	if ip != "" {
+		log.Print(ip)
+	}
+	log.Print(ctx.Request.RemoteAddr)
+
 	visitorName := ctx.Query("visitor_name")
 
 	if visitorName == "" {
-		ctx.JSON(http.StatusOK, gin.H{"message": "please provide 'visitor_name' with value as a query parameter"})
+		visitorName = "user"
+	}
+
+	token := os.Getenv("PINFO_ACCESS_TOKEN")
+	weatherApiKey := os.Getenv("WEATHER_API_KEY")
+
+	info, err := GetGeolocation(ip, token)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err)
+		return
+	}
+	weatherData, err := GetWeatherData(info.Loc, weatherApiKey)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
-	ip := GetLocalIP()
-	token := os.Getenv("PINFO_ACCESS_TOKEN")
-	weatherApiKey := os.Getenv("WEATHER_API_KEY")
-	info, err := GetGeolocation(ip.String(), token)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
-	}
-	weatherData, err := GetWeatherData(info.City, weatherApiKey)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
-	}
+	greeting := GenerateGreeting(visitorName, weatherData.Location.Name, float32(weatherData.Current.TempC))
 
-	ctx.JSON(http.StatusOK, gin.H{"ip": ip.String(), "weather_info": *weatherData})
+	ctx.JSON(http.StatusOK, Response{
+		ClientIP: info.IP,
+		Location: weatherData.Location.Name,
+		Greeting: greeting,
+	})
 
 }

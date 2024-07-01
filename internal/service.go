@@ -3,24 +3,10 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"net"
 	"net/http"
 )
 
-func GetLocalIP() net.IP {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer conn.Close()
-
-	localAddress := conn.LocalAddr().(*net.UDPAddr)
-
-	return localAddress.IP
-}
-
-func GetGeolocation(ip string, apiKey string) (*IPinfoResponse, error) {
+func GetGeolocation(ip string, apiKey string) (*LocationData, error) {
 	url := fmt.Sprintf("https://ipinfo.io/%s?token=%s", ip, apiKey)
 	resp, err := http.Get(url)
 	if err != nil {
@@ -28,14 +14,14 @@ func GetGeolocation(ip string, apiKey string) (*IPinfoResponse, error) {
 	}
 	defer resp.Body.Close()
 
-	var location IPinfoResponse
+	var location LocationData
 	if err := json.NewDecoder(resp.Body).Decode(&location); err != nil {
 		return nil, err
 	}
 	return &location, nil
 }
 
-func GetWeatherData(cityQuery string, apiKey string) (*map[string]interface{}, error) {
+func GetWeatherData(cityQuery string, apiKey string) (*WeatherInfo, error) {
 	if cityQuery == "" {
 		cityQuery = "auto"
 	}
@@ -46,13 +32,13 @@ func GetWeatherData(cityQuery string, apiKey string) (*map[string]interface{}, e
 	}
 	defer resp.Body.Close()
 
-	var weatherData map[string]interface{}
+	var weatherData WeatherInfo
 	if err := json.NewDecoder(resp.Body).Decode(&weatherData); err != nil {
 		return nil, err
 	}
 	return &weatherData, nil
 }
 
-// func GenerateGreeting(name, location string, tempearture float32) string{
-
-// }
+func GenerateGreeting(name, location string, tempearture float32) string {
+	return fmt.Sprintf("Hello, %s!, the temperature is %v degrees Celcius in %s", name, tempearture, location)
+}
