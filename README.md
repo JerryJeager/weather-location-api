@@ -17,5 +17,5 @@ Run the code:
 go run main.go
 ```
 ## API
-[https://weather-location-api.vercel.app/api/name?visitor_name=Mark](https://weather-location-api.vercel.app)
+[https://weather-location-api.vercel.app/api/hello?visitor_name=Mark](https://weather-location-api.vercel.app/api/hello?visitor_name=Mark)
 you can change the value of the visitor_name query parameter
